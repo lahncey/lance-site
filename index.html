@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lance Lanting — I build systems that do the work.</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --base: #F7F3EE;
+      --surface: #E8DDD0;
+      --muted: #B5A49A;
+      --body: #5C4B3E;
+      --ink: #2B1F18;
+      --accent: #D4A47A;
+      --serif: 'Playfair Display', Georgia, serif;
+      --sans: 'DM Sans', system-ui, sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--base);
+      color: var(--ink);
+      font-family: var(--sans);
+      font-weight: 400;
+      overflow-x: hidden;
+    }
+
+    /* ── CURSOR ── */
+    body { cursor: none; }
+    #cursor {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--ink);
+      position: fixed;
+      top: 0; left: 0;
+      pointer-events: none;
+      z-index: 9999;
+      transition: transform 0.15s ease, opacity 0.2s;
+      mix-blend-mode: multiply;
+    }
+    #cursor.big { transform: scale(4); background: var(--accent); opacity: 0.5; }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 48px;
+      background: var(--base);
+      border-bottom: 0.5px solid transparent;
+      transition: border-color 0.3s, background 0.3s;
+    }
+    nav.scrolled { border-bottom-color: var(--surface); }
+    .nav-logo {
+      font-family: var(--serif);
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--ink);
+      text-decoration: none;
+      letter-spacing: -0.01em;
+    }
+    .nav-links { display: flex; gap: 32px; list-style: none; }
+    .nav-links a {
+      font-size: 13px;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s;
+      letter-spacing: 0.02em;
+    }
+    .nav-links a:hover { color: var(--ink); }
+    .nav-cta {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--ink);
+      border: 0.5px solid var(--muted);
+      border-radius: 20px;
+      padding: 8px 18px;
+      text-decoration: none;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .nav-cta:hover { background: var(--surface); border-color: var(--ink); }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 120px 48px 80px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-bg-shape {
+      position: absolute;
+      top: 0; right: -80px;
+      width: 55%;
+      height: 100%;
+      background: var(--surface);
+      clip-path: polygon(18% 0%, 100% 0%, 100% 100%, 0% 100%);
+      z-index: 0;
+    }
+    .hero-content { position: relative; z-index: 1; max-width: 680px; }
+    .hero-overline {
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 500;
+      margin-bottom: 20px;
+      opacity: 0;
+      animation: fadeUp 0.6s ease forwards 0.2s;
+    }
+    .hero-h1 {
+      font-family: var(--serif);
+      font-size: clamp(42px, 6vw, 80px);
+      font-weight: 500;
+      color: var(--ink);
+      line-height: 1.1;
+      margin-bottom: 28px;
+      opacity: 0;
+      animation: fadeUp 0.7s ease forwards 0.35s;
+    }
+    .hero-h1 em { font-style: italic; color: var(--body); }
+    .hero-accent-line {
+      width: 40px; height: 2px;
+      background: var(--ink);
+      border-radius: 2px;
+      margin-bottom: 24px;
+      opacity: 0;
+      animation: fadeUp 0.6s ease forwards 0.5s;
+    }
+    .hero-body {
+      font-size: 17px;
+      color: var(--body);
+      line-height: 1.75;
+      max-width: 460px;
+      margin-bottom: 40px;
+      opacity: 0;
+      animation: fadeUp 0.6s ease forwards 0.6s;
+    }
+    .hero-ctas {
+      display: flex; gap: 12px; flex-wrap: wrap;
+      opacity: 0;
+      animation: fadeUp 0.6s ease forwards 0.75s;
+    }
+    .btn-primary {
+      background: var(--ink);
+      color: var(--base);
+      padding: 13px 28px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .btn-primary:hover { opacity: 0.85; }
+    .btn-secondary {
+      border: 1px solid var(--muted);
+      color: var(--body);
+      padding: 13px 28px;
+      border-radius: 6px;
+      font-size: 14px;
+      text-decoration: none;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .btn-secondary:hover { border-color: var(--ink); background: var(--surface); }
+
+    .hero-stats {
+      position: absolute;
+      bottom: 60px; right: 64px;
+      display: flex; gap: 40px;
+      z-index: 1;
+      opacity: 0;
+      animation: fadeUp 0.6s ease forwards 1s;
+    }
+    .stat { text-align: right; }
+    .stat-num {
+      font-family: var(--serif);
+      font-size: 28px;
+      font-weight: 500;
+      color: var(--ink);
+      display: block;
+    }
+    .stat-label { font-size: 11px; color: var(--muted); letter-spacing: 0.06em; }
+
+    .scroll-indicator {
+      position: absolute;
+      bottom: 36px; left: 48px;
+      display: flex; align-items: center; gap: 10px;
+      z-index: 1;
+      opacity: 0;
+      animation: fadeUp 0.6s ease forwards 1.2s;
+    }
+    .scroll-line {
+      width: 40px; height: 0.5px;
+      background: var(--muted);
+    }
+    .scroll-text { font-size: 11px; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; }
+
+    /* ── SECTION BASE ── */
+    section { padding: 100px 48px; }
+    .section-label {
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 500;
+      margin-bottom: 48px;
+      display: flex; align-items: center; gap: 16px;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 0.5px;
+      background: var(--surface);
+    }
+
+    /* ── ABOUT ── */
+    .about { background: var(--ink); color: var(--base); }
+    .about .section-label { color: var(--muted); }
+    .about .section-label::after { background: #3a2d25; }
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: start;
+    }
+    .about-left {}
+    .about-heading {
+      font-family: var(--serif);
+      font-size: clamp(28px, 3.5vw, 48px);
+      font-weight: 500;
+      color: var(--base);
+      line-height: 1.2;
+      margin-bottom: 28px;
+    }
+    .about-heading em { font-style: italic; color: var(--accent); }
+    .about-body {
+      font-size: 15px;
+      color: #c8bfb8;
+      line-height: 1.8;
+      margin-bottom: 24px;
+    }
+    .about-right { padding-top: 8px; }
+    .trait {
+      border-top: 0.5px solid #3a2d25;
+      padding: 20px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 16px;
+    }
+    .trait:last-child { border-bottom: 0.5px solid #3a2d25; }
+    .trait-label { font-size: 12px; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; }
+    .trait-value { font-family: var(--serif); font-size: 17px; color: var(--base); text-align: right; }
+
+    /* ── WORK ── */
+    .work {}
+    .work-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
+    .work-card {
+      background: var(--surface);
+      padding: 40px;
+      position: relative;
+      overflow: hidden;
+      transition: background 0.25s;
+      cursor: none;
+    }
+    .work-card:hover { background: var(--ink); }
+    .work-card:hover .work-role,
+    .work-card:hover .work-co,
+    .work-card:hover .work-desc,
+    .work-card:hover .work-date { color: var(--base); }
+    .work-card:hover .work-num { color: var(--accent); }
+    .work-card:hover .work-tags span { background: #3a2d25; color: var(--muted); }
+    .work-num {
+      font-family: var(--serif);
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 24px;
+      display: block;
+      font-style: italic;
+      transition: color 0.25s;
+    }
+    .work-co {
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+      transition: color 0.25s;
+    }
+    .work-role {
+      font-family: var(--serif);
+      font-size: 24px;
+      font-weight: 500;
+      color: var(--ink);
+      margin-bottom: 16px;
+      line-height: 1.25;
+      transition: color 0.25s;
+    }
+    .work-desc {
+      font-size: 13px;
+      color: var(--body);
+      line-height: 1.7;
+      margin-bottom: 24px;
+      transition: color 0.25s;
+    }
+    .work-date {
+      font-size: 12px;
+      color: var(--muted);
+      transition: color 0.25s;
+    }
+    .work-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 16px; }
+    .work-tags span {
+      font-size: 11px;
+      background: var(--base);
+      color: var(--body);
+      padding: 4px 10px;
+      border-radius: 3px;
+      transition: background 0.25s, color 0.25s;
+    }
+
+    /* ── PROJECTS ── */
+    .projects { background: var(--surface); }
+    .projects-list { display: flex; flex-direction: column; gap: 0; }
+    .project-row {
+      display: grid;
+      grid-template-columns: 80px 1fr auto;
+      gap: 32px;
+      align-items: center;
+      padding: 32px 0;
+      border-top: 0.5px solid var(--muted);
+      text-decoration: none;
+      color: inherit;
+      transition: padding-left 0.25s ease;
+      cursor: none;
+    }
+    .project-row:last-child { border-bottom: 0.5px solid var(--muted); }
+    .project-row:hover { padding-left: 16px; }
+    .project-row:hover .project-name { color: var(--ink); }
+    .project-row:hover .project-arrow { opacity: 1; transform: translateX(0); }
+    .project-num {
+      font-family: var(--serif);
+      font-size: 13px;
+      font-style: italic;
+      color: var(--muted);
+    }
+    .project-info {}
+    .project-name {
+      font-family: var(--serif);
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--body);
+      margin-bottom: 4px;
+      transition: color 0.2s;
+    }
+    .project-desc { font-size: 13px; color: var(--muted); line-height: 1.5; }
+    .project-arrow {
+      font-size: 20px;
+      color: var(--ink);
+      opacity: 0;
+      transform: translateX(-8px);
+      transition: opacity 0.2s, transform 0.25s ease;
+    }
+
+    /* ── SKILLS ── */
+    .skills {}
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+    }
+    .skill-block {
+      padding: 36px 32px;
+      background: var(--surface);
+    }
+    .skill-category {
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 20px;
+      font-weight: 500;
+    }
+    .skill-list { list-style: none; }
+    .skill-list li {
+      font-size: 14px;
+      color: var(--body);
+      padding: 6px 0;
+      border-bottom: 0.5px solid var(--base);
+      line-height: 1.4;
+    }
+    .skill-list li:last-child { border-bottom: none; }
+
+    /* ── EDUCATION ── */
+    .education { background: var(--ink); color: var(--base); }
+    .education .section-label { color: var(--muted); }
+    .education .section-label::after { background: #3a2d25; }
+    .edu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start; }
+    .edu-left {}
+    .edu-heading {
+      font-family: var(--serif);
+      font-size: clamp(22px, 3vw, 38px);
+      font-weight: 500;
+      color: var(--base);
+      line-height: 1.2;
+      margin-bottom: 8px;
+    }
+    .edu-school { font-size: 13px; color: var(--muted); margin-bottom: 32px; }
+    .edu-gpa {
+      font-family: var(--serif);
+      font-size: 64px;
+      font-weight: 500;
+      color: var(--accent);
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+    .edu-gpa-label { font-size: 12px; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+    .edu-right { padding-top: 8px; }
+    .honor {
+      border-top: 0.5px solid #3a2d25;
+      padding: 16px 0;
+      font-size: 13px;
+      color: #c8bfb8;
+      line-height: 1.5;
+    }
+    .honor:last-child { border-bottom: 0.5px solid #3a2d25; }
+
+    /* ── CONTACT ── */
+    .contact {
+      background: var(--base);
+      text-align: center;
+      padding: 120px 48px;
+    }
+    .contact-eyebrow {
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+    .contact-heading {
+      font-family: var(--serif);
+      font-size: clamp(36px, 5vw, 64px);
+      font-weight: 500;
+      color: var(--ink);
+      line-height: 1.15;
+      margin-bottom: 16px;
+    }
+    .contact-heading em { font-style: italic; color: var(--body); }
+    .contact-sub {
+      font-size: 16px;
+      color: var(--body);
+      margin-bottom: 48px;
+    }
+    .contact-links { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+    .contact-link {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--ink);
+      text-decoration: none;
+      border: 0.5px solid var(--muted);
+      border-radius: 6px;
+      padding: 12px 24px;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .contact-link:hover { background: var(--surface); border-color: var(--ink); }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--ink);
+      padding: 32px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .footer-logo {
+      font-family: var(--serif);
+      font-size: 16px;
+      color: var(--base);
+    }
+    .footer-tagline { font-size: 12px; color: var(--muted); }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
+
+    /* ── MARQUEE ── */
+    .marquee-wrap {
+      overflow: hidden;
+      background: var(--accent);
+      padding: 14px 0;
+      white-space: nowrap;
+    }
+    .marquee-inner {
+      display: inline-block;
+      animation: marquee 20s linear infinite;
+    }
+    .marquee-inner span {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--ink);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin: 0 32px;
+    }
+    .marquee-inner span::before {
+      content: '·';
+      margin-right: 32px;
+      color: var(--body);
+    }
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      nav { padding: 16px 24px; }
+      .nav-links { display: none; }
+      section { padding: 72px 24px; }
+      .hero { padding: 100px 24px 72px; }
+      .hero-bg-shape { width: 60%; right: -40px; }
+      .hero-stats { display: none; }
+      .about-grid, .edu-grid { grid-template-columns: 1fr; gap: 40px; }
+      .work-grid { grid-template-columns: 1fr; }
+      .skills-grid { grid-template-columns: 1fr; }
+      .project-row { grid-template-columns: 40px 1fr auto; gap: 16px; }
+      footer { flex-direction: column; gap: 8px; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Custom cursor -->
+  <div id="cursor"></div>
+
+  <!-- Nav -->
+  <nav id="nav">
+    <a href="#" class="nav-logo">Lance Lanting</a>
+    <ul class="nav-links">
+      <li><a href="#work">Experience</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="#skills">Skills</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <a href="mailto:lancelikestobuild@gmail.com" class="nav-cta">Let's talk</a>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-bg-shape"></div>
+    <div class="hero-content">
+      <p class="hero-overline">PM · Consultant · Founder · New York</p>
+      <h1 class="hero-h1">I build systems<br>that <em>do the work.</em></h1>
+      <div class="hero-accent-line"></div>
+      <p class="hero-body">Consultant at Accenture. Builder of AI-powered tools. I sit at the intersection of delivery, engineering, and product — and I ship things that actually work.</p>
+      <div class="hero-ctas">
+        <a href="#work" class="btn-primary">See the work</a>
+        <a href="#contact" class="btn-secondary">Get in touch</a>
+      </div>
+    </div>
+    <div class="hero-stats">
+      <div class="stat">
+        <span class="stat-num">3.94</span>
+        <span class="stat-label">GPA</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">20+</span>
+        <span class="stat-label">Milestones owned</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">2–3h</span>
+        <span class="stat-label">Saved per PM cycle</span>
+      </div>
+    </div>
+    <div class="scroll-indicator">
+      <div class="scroll-line"></div>
+      <span class="scroll-text">Scroll</span>
+    </div>
+  </section>
+
+  <!-- Marquee -->
+  <div class="marquee-wrap">
+    <div class="marquee-inner">
+      <span>Project Management</span>
+      <span>AI Tool Development</span>
+      <span>Stakeholder Alignment</span>
+      <span>Claude API</span>
+      <span>Risk Intelligence</span>
+      <span>Agile Delivery</span>
+      <span>React & Vercel</span>
+      <span>Building in Public</span>
+      <span>Program Delivery</span>
+      <span>Process Design</span>
+      <span>Project Management</span>
+      <span>AI Tool Development</span>
+      <span>Stakeholder Alignment</span>
+      <span>Claude API</span>
+      <span>Risk Intelligence</span>
+      <span>Agile Delivery</span>
+      <span>React & Vercel</span>
+      <span>Building in Public</span>
+      <span>Program Delivery</span>
+      <span>Process Design</span>
+    </div>
+  </div>
+
+  <!-- About -->
+  <section class="about" id="about">
+    <div class="section-label">About</div>
+    <div class="about-grid">
+      <div class="about-left reveal">
+        <h2 class="about-heading">The PM who<br>also <em>ships code.</em></h2>
+        <p class="about-body">Most PMs manage. I build. At Accenture I run complex multi-org programs and simultaneously ship production AI tools — because I believe the best operators understand the systems they're managing.</p>
+        <p class="about-body">I've led re-baselining efforts across 40+ milestones, built ARIA to automate RAID log management, and engineered ZYRA to score vendor risk in real time. These aren't side projects. They run on live engagements.</p>
+      </div>
+      <div class="about-right reveal reveal-delay-2">
+        <div class="trait">
+          <span class="trait-label">Currently</span>
+          <span class="trait-value">Accenture, New York</span>
+        </div>
+        <div class="trait">
+          <span class="trait-label">Focus</span>
+          <span class="trait-value">PM + AI Tooling</span>
+        </div>
+        <div class="trait">
+          <span class="trait-label">Building</span>
+          <span class="trait-value">ARIA · ZYRA · Veil</span>
+        </div>
+        <div class="trait">
+          <span class="trait-label">Stack</span>
+          <span class="trait-value">React · Claude API · Vercel</span>
+        </div>
+        <div class="trait">
+          <span class="trait-label">Availability</span>
+          <span class="trait-value">Open to conversations</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Work -->
+  <section class="work" id="work">
+    <div class="section-label">Experience</div>
+    <div class="work-grid">
+      <div class="work-card reveal">
+        <span class="work-num">01</span>
+        <p class="work-co">Accenture</p>
+        <h3 class="work-role">Project Manager</h3>
+        <p class="work-desc">Owned end-to-end product delivery across Digital, Technology, Operations, and vendor workstreams for the Edward Jones × S&P Global Corporate Actions Modernization engagement.</p>
+        <p class="work-desc">Built and deployed ARIA — an AI-powered RAID log monitor that cut PM reporting overhead by 2–3 hours per cycle and surfaced real-time staleness signals for leadership escalation.</p>
+        <p class="work-date">Jan 2025 – Present</p>
+        <div class="work-tags">
+          <span>Program Delivery</span><span>AI Tools</span><span>RAID Management</span><span>Stakeholder Alignment</span>
+        </div>
+      </div>
+      <div class="work-card reveal reveal-delay-2">
+        <span class="work-num">02</span>
+        <p class="work-co">Accenture</p>
+        <h3 class="work-role">KYC Analyst &<br>Requirements Lead</h3>
+        <p class="work-desc">Drove Agile execution by authoring 40–50 detailed user stories translating complex regulatory demands into sprint-ready development tasks. Managed a centralized KYC Gap Assessment Database across Retail, Wealth, and Commercial business units.</p>
+        <p class="work-date">Oct 2024 – Jan 2025</p>
+        <div class="work-tags">
+          <span>Agile</span><span>User Stories</span><span>KYC/Compliance</span><span>PEGA</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Projects -->
+  <section class="projects" id="projects">
+    <div class="section-label">Projects</div>
+    <div class="projects-list">
+      <a href="https://sendveil.co" target="_blank" class="project-row reveal">
+        <span class="project-num">01</span>
+        <div class="project-info">
+          <h3 class="project-name">Veil — sendveil.co</h3>
+          <p class="project-desc">AI-powered cinematic invitation platform. Built end-to-end on Next.js, TypeScript, Framer Motion, Spotify API, Unsplash API, and Claude API. Zero external dependencies.</p>
+        </div>
+        <span class="project-arrow">→</span>
+      </a>
+      <div class="project-row reveal reveal-delay-1">
+        <span class="project-num">02</span>
+        <div class="project-info">
+          <h3 class="project-name">ARIA — AI RAID Monitor</h3>
+          <p class="project-desc">Automated RAID Intelligence Assistant. React app on Vercel calling the Claude API. Monitors 20+ high-priority action items across two organizations, generates leadership briefings, and surfaces staleness signals in real time.</p>
+        </div>
+        <span class="project-arrow" style="opacity:0.3; transform: none;">—</span>
+      </div>
+      <div class="project-row reveal reveal-delay-2">
+        <span class="project-num">03</span>
+        <div class="project-info">
+          <h3 class="project-name">ZYRA — Risk Intelligence Tool</h3>
+          <p class="project-desc">Vendor risk scoring tool on the Claude API. Scores status reports against 4 early warning signal categories — risk omissions, language drift, stalled metrics, buried appendix risks — and generates week-by-week risk trajectories.</p>
+        </div>
+        <span class="project-arrow" style="opacity:0.3; transform: none;">—</span>
+      </div>
+      <div class="project-row reveal reveal-delay-3">
+        <span class="project-num">04</span>
+        <div class="project-info">
+          <h3 class="project-name">Lanting Services</h3>
+          <p class="project-desc">Sole proprietorship. EIN obtained, business banking configured. Service-business broker model in development — cleaning, pressure washing, junk removal. Building the systems before the niche.</p>
+        </div>
+        <span class="project-arrow" style="opacity:0.3; transform: none;">—</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Skills -->
+  <section class="skills" id="skills">
+    <div class="section-label">Skills & Tools</div>
+    <div class="skills-grid">
+      <div class="skill-block reveal">
+        <p class="skill-category">AI & Engineering</p>
+        <ul class="skill-list">
+          <li>Claude API / Prompt Engineering</li>
+          <li>Agentic AI Development</li>
+          <li>React · Next.js · TypeScript</li>
+          <li>Vercel Deployment</li>
+          <li>Python · SQL</li>
+          <li>AWS · Azure</li>
+        </ul>
+      </div>
+      <div class="skill-block reveal reveal-delay-1">
+        <p class="skill-category">Delivery & PMO</p>
+        <ul class="skill-list">
+          <li>Program & Project Management</li>
+          <li>Agile / Scrum Execution</li>
+          <li>Risk & Dependency Management</li>
+          <li>Jira · Microsoft Planner</li>
+          <li>Requirements Gathering</li>
+          <li>Business Process Mapping</li>
+        </ul>
+      </div>
+      <div class="skill-block reveal reveal-delay-2">
+        <p class="skill-category">Analytics & Strategy</p>
+        <ul class="skill-list">
+          <li>Alteryx · Tableau · Power BI</li>
+          <li>Excel · Teradata</li>
+          <li>Stakeholder Alignment</li>
+          <li>Design Thinking</li>
+          <li>Launch Readiness</li>
+          <li>Product Operations</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Education -->
+  <section class="education" id="education">
+    <div class="section-label">Education</div>
+    <div class="edu-grid">
+      <div class="edu-left reveal">
+        <h2 class="edu-heading">University of Houston<br>C.T. Bauer Honors College</h2>
+        <p class="edu-school">BBA in Management Information Systems</p>
+        <div class="edu-gpa">3.94</div>
+        <p class="edu-gpa-label">Cumulative GPA · All semesters on Dean's List</p>
+      </div>
+      <div class="edu-right reveal reveal-delay-2">
+        <div class="honor">Dean's Distinguished Scholars List — every semester</div>
+        <div class="honor">Great Conversation Honors Scholarship</div>
+        <div class="honor">Lynette Autrey Honors Scholarship</div>
+        <div class="honor">Michelle and Ed Noack Scholarship</div>
+        <div class="honor">Richard S. Franklin Scholarship</div>
+        <div class="honor">RSM Power Your Education Scholarship</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section class="contact" id="contact">
+    <p class="contact-eyebrow">Let's build something</p>
+    <h2 class="contact-heading">Got a problem<br>that needs <em>solving?</em></h2>
+    <p class="contact-sub">I'm open to the right conversations — startup, contract, or otherwise.</p>
+    <div class="contact-links">
+      <a href="mailto:lancelikestobuild@gmail.com" class="contact-link">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        lancelikestobuild@gmail.com
+      </a>
+      <a href="https://linkedin.com/in/lancelanting/" target="_blank" class="contact-link">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+        LinkedIn
+      </a>
+      <a href="tel:3129612289" class="contact-link">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.28h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.96a16 16 0 0 0 6.09 6.09l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        (312) 961-2289
+      </a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <span class="footer-logo">Lance Lanting</span>
+    <span class="footer-tagline">Built with intent. New York, NY · 2026</span>
+  </footer>
+
+  <script>
+    // Custom cursor
+    const cursor = document.getElementById('cursor');
+    document.addEventListener('mousemove', e => {
+      cursor.style.left = e.clientX - 5 + 'px';
+      cursor.style.top = e.clientY - 5 + 'px';
+    });
+    document.querySelectorAll('a, button, .work-card, .project-row').forEach(el => {
+      el.addEventListener('mouseenter', () => cursor.classList.add('big'));
+      el.addEventListener('mouseleave', () => cursor.classList.remove('big'));
+    });
+
+    // Nav scroll state
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 40);
+    });
+
+    // Scroll reveal
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1 });
+    reveals.forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>
